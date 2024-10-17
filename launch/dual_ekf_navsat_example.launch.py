@@ -29,10 +29,18 @@ def generate_launch_description():
     return LaunchDescription([
         launch.actions.DeclareLaunchArgument(
             'output_final_position',
-            default_value='false'),
+            default_value='true'),
         launch.actions.DeclareLaunchArgument(
             'output_location',
 	    default_value='~/dual_ekf_navsat_example_debug.txt'),
+    launch_ros.actions.Node( 
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            name='bl_imu',
+            output='screen', 
+            arguments=['0', '0', '0', '0', '0', '0', '1', 'base_link', 'imu_link'] 
+        ),
+ 
 	
     launch_ros.actions.Node(
             package='robot_localization', 
@@ -56,7 +64,7 @@ def generate_launch_description():
             name='navsat_transform',
 	        output='screen',
             parameters=[parameters_file_path],
-            remappings=[('imu/data', 'imu/data'),
+            remappings=[('imu', 'imu/data'),
                         ('gps/fix', 'gps/fix'), 
                         ('gps/filtered', 'gps/filtered'),
                         ('odometry/gps', 'odometry/gps'),
