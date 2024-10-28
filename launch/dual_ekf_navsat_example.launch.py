@@ -38,7 +38,9 @@ def generate_launch_description():
             executable='static_transform_publisher',
             name='bl_imu',
             output='screen', 
+            # arguments=['0', '0', '0', '0', '0', '0', '1', 'base_link', 'imu_link'] 
             arguments=['0', '0', '0', '0', '0', '0', '1', 'base_link', 'imu_link'] 
+
         ),
  
 	
@@ -52,7 +54,7 @@ def generate_launch_description():
            ),
     launch_ros.actions.Node(
             package='robot_localization', 
-            executable='ekf_node', 
+            executable='ukf_node', 
             name='ekf_filter_node_map',
 	        output='screen',
             parameters=[parameters_file_path],
@@ -64,7 +66,7 @@ def generate_launch_description():
             name='navsat_transform',
 	        output='screen',
             parameters=[parameters_file_path],
-            remappings=[('imu', 'imu/data'),
+            remappings=[('imu/data', 'imu/data'),
                         ('gps/fix', 'gps/fix'), 
                         ('gps/filtered', 'gps/filtered'),
                         ('odometry/gps', 'odometry/gps'),

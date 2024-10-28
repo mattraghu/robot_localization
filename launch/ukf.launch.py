@@ -31,5 +31,15 @@ def generate_launch_description():
             name='ukf_filter_node',
             output='screen',
             parameters=[os.path.join(get_package_share_directory("robot_localization"), 'params', 'ukf.yaml')],
+            remappings=[('odometry/filtered', 'odometry/global')]
            ),
+
+        launch_ros.actions.Node( 
+                package='tf2_ros',
+                executable='static_transform_publisher',
+                name='bl_imu',
+                output='screen', 
+                arguments=['0', '0', '0', '0', '0', '0', '1', 'base_link', 'imu_link'] ,
+
+            ),
 ])
