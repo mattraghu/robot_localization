@@ -54,7 +54,7 @@ def generate_launch_description():
            ),
     launch_ros.actions.Node(
             package='robot_localization', 
-            executable='ukf_node', 
+            executable='ekf_node', 
             name='ekf_filter_node_map',
 	        output='screen',
             parameters=[parameters_file_path],
