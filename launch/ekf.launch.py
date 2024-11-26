@@ -25,11 +25,59 @@ from launch.actions import DeclareLaunchArgument
 
 def generate_launch_description():
     return LaunchDescription([
+        # Static transform publisher
+        launch_ros.actions.Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            name='bl_imu',
+            output='screen',
+            # arguments=['0', '0', '0', '0', '0', '0.2588', '0.9659', 'base_link', 'imu_link']
+            arguments=['0', '0', '0', '0', '0', '0', '1', 'base_link', 'imu_link']
+        ),
         launch_ros.actions.Node(
             package='robot_localization',
             executable='ekf_node',
-            name='ekf_filter_node',
+            name='ekf_filter_node_map',
             output='screen',
             parameters=[os.path.join(get_package_share_directory("robot_localization"), 'params', 'ekf.yaml')],
+            remappings=[('odometry/filtered', 'odometry/global')]
            ),
+        launch_ros.actions.Node(
+            package='robot_localization',
+            executable='ekf_node',
+            name='ekf_filter_node_odom',
+            output='screen',
+            parameters=[os.path.join(get_package_share_directory("robot_localization"), 'params', 'ekf.yaml')],
+            remappings=[('odometry/filtered', 'odometry/local')]
+           ),
+
+        # NavSat transform node
+        launch_ros.actions.Node(
+            package='robot_localization',
+            executable='navsat_transform_node',
+            name='navsat_transform',
+            output='screen',
+            parameters=[os.path.join(get_package_share_directory("robot_localization"), 'params', 'ekf.yaml')],
+            remappings=[
+                ('imu/data', 'imu/data'),
+                ('gps/fix', 'gps/fix'),
+                ('gps/filtered', 'gps/filtered'),
+                ('odometry/gps', 'odometry/gps'),
+                ('odometry/filtered', 'odometry/global')
+            ]
+        ),
+
+        # Bag file
+        launch.actions.ExecuteProcess(
+            cmd=[
+                'ros2', 'bag', 'play', 
+                '/home/kearfott/ros2_ws/FIRSTVANRUN/FIRSTVANRUN_0.db3',
+                '--start-offset', '190',
+                '--remap', 
+                '/imu/data:=/imu',
+                '/gps_ios:=/gps',
+                '/gps_fix:=/idk'
+            ],
+            output='screen'
+        )
 ])
