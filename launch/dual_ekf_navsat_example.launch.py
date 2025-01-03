@@ -84,18 +84,18 @@ def generate_launch_description():
         launch.actions.ExecuteProcess(
             cmd=[
                 'ros2', 'bag', 'play', 
-                # '/home/kearfott/ros2_ws/FIRSTVANRUN/FIRSTVANRUN_0.db3',
-                # '--start-offset', '190',
-                # '--remap', 
-                # '/imu/data:=/imu',
-                # '/gps_ios:=/gpsiosidk',
-                # '/gps_fix:=/idk',
-                '/home/kearfott/ros2_ws/SECOND_VAN_RUN_NEWER/SECOND_VAN_RUN_NEWER_0.db3',
-                '--start-offset', '400',
+                '/home/kearfott/ros2_ws/FIRSTVANRUN/FIRSTVANRUN_0.db3',
+                '--start-offset', '190',
                 '--remap', 
                 '/imu/data:=/imu',
                 '/gps_ios:=/gpsiosidk',
                 '/gps_fix:=/idk',
+                # '/home/kearfott/ros2_ws/SECOND_VAN_RUN_NEWER/SECOND_VAN_RUN_NEWER_0.db3',
+                # '--start-offset', '400',
+                # '--remap', 
+                # '/imu/data:=/imu',
+                # '/gps_ios:=/gpsiosidk',
+                # '/gps_fix:=/idk',
 
             ],
             output='screen'
