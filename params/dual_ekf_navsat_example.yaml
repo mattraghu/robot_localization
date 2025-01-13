@@ -16,10 +16,10 @@ ekf_filter_node_odom:
 
     imu0: imu/data
     imu0_config: [false, false, false,
-                  true,  true,  true,
+                  false,  false,  false,
                   false, false, false,
                   true,  true,  true,
-                  true,  false,  true]
+                  true,  true,  true]
     imu0_nodelay: true
     imu0_differential: false
     imu0_relative: false
@@ -79,22 +79,21 @@ ekf_filter_node_map:
                   false, false, false]
     odom0_queue_size: 10
     odom0_nodelay: true
-    odom0_differential: false
     odom0_relative: false
 
-    odom1: /odom
-    odom1_config: [false,  false,  false,
-                  false, false, false,
-                  false, true, false,
-                  false, false, false,
-                  false, false, false]
+    # odom1: /odom
+    # odom1_config: [false,  false,  false,
+    #               false, false, false,
+    #               false, true, false,
+    #               false, false, false,
+    #               false, false, false]
 
     imu0: imu/data
     imu0_config: [false, false, false,
-                  true,  true,  true,
+                  false,  false,  false,
                   false, false, false,
                   true,  true,  true,
-                  true,  false,  true]
+                  true,  true,  true] 
     imu0_nodelay: true
     imu0_differential: false
     imu0_relative: false
@@ -139,11 +138,32 @@ navsat_transform:
     zero_altitude: false
     broadcast_cartesian_transform: true
     publish_filtered_gps: true
-    use_odometry_yaw: false
+    use_odometry_yaw: true
     print_diagnostics: true
     reset_on_time_jump: true
 
-    # wait_for_datum: true
-    # datum: [40.8531181, -74.336734, 0.00]
+    wait_for_datum: true
+    datum: [40.8531181, -74.336734, 0.00]
     smooth_lagged_data: true
     history_length: 20.0
+
+csv_publisher:
+  ros__parameters:
+    gyro_file: "/media/kearfott/PBKFD-095/delta_ang.csv"
+    accel_file: "/media/kearfott/PBKFD-095/delta_vel.csv"
+    start_time_est: "2024-12-20 14:15:15"
+    skip_until_est: "2024-12-20 14:50:14"
+    plot_accels: true
+    downsample_hz: 30.0
+
+new_converter_node:
+  ros__parameters:
+    imu_topic_in: "/mems/raw" # IMU topic name
+    imu_topic_out: "/mems/data" # Output IMU topic name
+    camera_topic_in: "/camera/image_raw"
+    camera_topic_out: "/camera/image"
+    start_est_time: "2024-12-20 14:50:14" 
+    downsample_hz: 30.0 
+    imu_orientation_covariance: [0.01, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.01] # Covariance for IMU orientation
+    imu_angular_velocity_covariance: [0.001, 0.0, 0.0, 0.0, 0.001, 0.0, 0.0, 0.0, 0.001] # Covariance for angular velocity
+    imu_linear_acceleration_covariance: [0.001, 0.0, 0.0, 0.0, 0.001, 0.0, 0.0, 0.0, 0.001] # Covariance for linear acceleration
