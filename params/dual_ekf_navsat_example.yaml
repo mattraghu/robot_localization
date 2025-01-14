@@ -1,8 +1,7 @@
 # For parameter descriptions, please refer to the template parameter files for each node.
-
 ekf_filter_node_odom:
   ros__parameters:
-    frequency: 40.0
+    frequency: 30.0
     sensor_timeout: 0.1
     two_d_mode: false
     transform_time_offset: 0.0
@@ -16,14 +15,16 @@ ekf_filter_node_odom:
 
     imu0: imu/data
     imu0_config: [false, false, false,
-                  false,  false,  false,
-                  false, false, false,
+                  # false,  false,  false,
                   true,  true,  true,
+                  false, false, false,
+                  false, false, false,
+                  # true,  true,  true,
                   true,  true,  true]
     imu0_nodelay: true
     imu0_differential: false
     imu0_relative: false
-    imu0_queue_size: 1
+    imu0_queue_size: 100
     imu0_remove_gravitational_acceleration: true
     imu0_twist_rejection_threshold: 0.8                #
     imu0_pose_rejection_threshold: 0.8                #
@@ -33,9 +34,12 @@ ekf_filter_node_odom:
     stamped_control: false
     control_timeout: 0.2
 
-    smooth_lagged_data: true
-    history_length: 20.0
+    # smooth_lagged_data: true
+    # history_length: 20.0
+    # use_sim_time: true
 
+    reset_on_time_jump: true
+    use_sim_time: true
 
     process_noise_covariance: [0.05, 0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
                                 0.0,    0.05, 0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
@@ -55,14 +59,14 @@ ekf_filter_node_odom:
 
 ekf_filter_node_map:
   ros__parameters:
-    frequency: 40.0
+    frequency: 30.0
     sensor_timeout: 0.1
     two_d_mode: false
     transform_time_offset: 0.0
     transform_timeout: 0.0
     print_diagnostics: true
-    smooth_lagged_data: true
-    history_length: 20.0
+    # smooth_lagged_data: true
+    # history_length: 20.0
     debug: true
     debug_out_file: /home/kearfott/ros2_ws/file.txt
 
@@ -90,15 +94,17 @@ ekf_filter_node_map:
 
     imu0: imu/data
     imu0_config: [false, false, false,
-                  false,  false,  false,
-                  false, false, false,
                   true,  true,  true,
+                  # false,  false,  false,
+                  false, false, false,
+                  false, false, false,
+                  # true,  true,  true,
                   true,  true,  true] 
     imu0_nodelay: true
     imu0_differential: false
     imu0_relative: false
     imu0_remove_gravitational_acceleration: true
-    imu0_queue_size: 10
+    imu0_queue_size: 100
     imu0_twist_rejection_threshold: 0.8                #
     imu0_pose_rejection_threshold: 0.8                #
     imu0_linear_acceleration_rejection_threshold: 0.8  #
@@ -110,6 +116,7 @@ ekf_filter_node_map:
 
 
     reset_on_time_jump: true
+    use_sim_time: true
 
 
 
@@ -133,19 +140,21 @@ navsat_transform:
   ros__parameters:
     frequency: 30.0
     delay: 3.0
-    magnetic_declination_radians: -1.0183259571
+    # magnetic_declination_radians: -1.0183259571
     yaw_offset: .47 #.349 
     zero_altitude: false
     broadcast_cartesian_transform: true
     publish_filtered_gps: true
     use_odometry_yaw: true
     print_diagnostics: true
+
     reset_on_time_jump: true
+    use_sim_time: true
 
     wait_for_datum: true
     datum: [40.8531181, -74.336734, 0.00]
-    smooth_lagged_data: true
-    history_length: 20.0
+    # smooth_lagged_data: true
+    # history_length: 20.0
 
 csv_publisher:
   ros__parameters:
@@ -154,12 +163,12 @@ csv_publisher:
     start_time_est: "2024-12-20 14:15:15"
     skip_until_est: "2024-12-20 14:50:14"
     plot_accels: true
-    downsample_hz: 30.0
+    # downsample_hz: 50.0
 
 new_converter_node:
   ros__parameters:
     imu_topic_in: "/mems/raw" # IMU topic name
-    imu_topic_out: "/mems/data" # Output IMU topic name
+    imu_topic_out: "/imu/data" # Output IMU topic name
     camera_topic_in: "/camera/image_raw"
     camera_topic_out: "/camera/image"
     start_est_time: "2024-12-20 14:50:14" 

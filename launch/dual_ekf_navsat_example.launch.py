@@ -74,7 +74,7 @@ def generate_launch_description():
                 "arguments": None
             },
             {
-                "name": "navsat_transform_node",
+                "name": "navsat_transform",
                 "package": "robot_localization",
                 "executable": "navsat_transform_node",
                 "output": "screen",
@@ -88,29 +88,29 @@ def generate_launch_description():
                 ],
                 "arguments": None
             },
-            {
-                "name": "csv_publisher",
-                "package": "imu_csv_publisher",
-                "executable": "csv_publisher",
-                "output": "screen",
-                "parameters": "param_file",
-                "remappings": [("imu/data", "imu/data")],
-                "arguments": None
-            },
+            # {
+            #     "name": "csv_publisher",
+            #     "package": "imu_csv_publisher",
+            #     "executable": "csv_publisher",
+            #     "output": "screen",
+            #     "parameters": "param_file",
+            #     "remappings": [("imu/data", "imu/data")],
+            #     "arguments": None
+            # },
             {
                 "name": "new_converter_node",
                 "package": "message_converter",
                 "executable": "new_converter_node",
                 "output": "screen",
                 "parameters": "param_file",
-                "remappings": [("imu/data", "mems/data")],
+                "remappings": [("imu/data", "imu/data")],
                 "arguments": None
             },
         ],
         "bag_files": [
             {
                 "file_path": "/home/kearfott/ros2_ws/12_20_2024_skyline_2/12_20_2024_skyline_2_0.db3",
-                "start_offset": 0,  
+                "start_offset": 250,  
                 "remaps": {
                     # key: old topic, value: new topic
                     "/imu/data": "/mems/raw",
