@@ -53,8 +53,9 @@ def generate_launch_description():
                 "output": "screen",
                 "parameters": None,  # not used here
                 "remappings": None,
-                "arguments": ["0", "0", "0", "0", "0", "0", "1", "base_link", "imu_link"]
+                "arguments": ["0", "0", "0", "0", "0", "1", "0", "base_link", "imu_link"]
             },
+
             {
                 "name": "ekf_filter_node_odom",
                 "package": "robot_localization",
@@ -88,15 +89,60 @@ def generate_launch_description():
                 ],
                 "arguments": None
             },
-            # {
-            #     "name": "csv_publisher",
-            #     "package": "imu_csv_publisher",
-            #     "executable": "csv_publisher",
-            #     "output": "screen",
-            #     "parameters": "param_file",
-            #     "remappings": [("imu/data", "imu/data")],
-            #     "arguments": None
-            # },
+
+
+            {
+                "name": "ekf_filter_node_odom",
+                "package": "robot_localization",
+                "executable": "ekf_node",
+                "output": "screen",
+                "parameters": "param_file",  # string "param_file" means "use parameter_file_path"
+                "remappings": [
+                    ("odometry/filtered", "odometry/local/cool"),
+                    ("imu/data", "cool/data"),
+                ],
+                "arguments": None
+            },
+            {
+                "name": "ekf_filter_node_map",
+                "package": "robot_localization",
+                "executable": "ekf_node",
+                "output": "screen",
+                "parameters": "param_file",
+                "remappings": [
+                    ("odometry/filtered", "odometry/global/cool"),
+                    ("imu/data", "cool/data"),
+                    ("accel/filtered", "accel/filtered/cool"),
+                ],
+                "arguments": None
+            },
+            {
+                "name": "navsat_transform",
+                "package": "robot_localization",
+                "executable": "navsat_transform_node",
+                "output": "screen",
+                "parameters": "param_file",
+                "remappings": [
+                    ("imu/data", "cool/data"),
+                    ("gps/fix", "gps/fix/cool"),
+                    ("gps/filtered", "gps/filtered/cool"),
+                    ("odometry/gps", "odometry/gps/cool"),
+                    ("odometry/filtered", "odometry/global/cool")
+                ],
+                "arguments": None
+            },
+
+
+
+            {
+                "name": "csv_publisher",
+                "package": "imu_csv_publisher",
+                "executable": "csv_publisher",
+                "output": "screen",
+                "parameters": "param_file",
+                "remappings": [("imu/data", "imu/data")],
+                "arguments": None
+            },
             {
                 "name": "new_converter_node",
                 "package": "message_converter",
@@ -110,7 +156,7 @@ def generate_launch_description():
         "bag_files": [
             {
                 "file_path": "/home/kearfott/ros2_ws/12_20_2024_skyline_2/12_20_2024_skyline_2_0.db3",
-                "start_offset": 250,  
+                "start_offset": 262.47,  
                 "remaps": {
                     # key: old topic, value: new topic
                     "/imu/data": "/mems/raw",
