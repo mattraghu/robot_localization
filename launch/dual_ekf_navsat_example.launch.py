@@ -5,8 +5,8 @@ A user-friendly ROS 2 launch script that centralizes configuration in a single
 place. We define nodes, processes, and arguments in a dictionary so you only
 need to modify one area for expansions or tweaks. This script sets up and runs
 the usual robot_localization stack, plus an IMU CSV publisher, a message
-converter node, and a final bag playback process (with optional start offsets
-and topic remapping).
+converter node, and a final bag playback process (with optional delays,
+start offsets, and topic remapping).
 
 We use 'rich' for console output to help highlight any issues or successes
 in a more visually pleasing way. We'll do minimal try-except blocks for
@@ -26,6 +26,7 @@ from ament_index_python.packages import get_package_share_directory
 from rich.console import Console
 console = Console()
 
+
 def generate_launch_description():
     """
     Generate and return a LaunchDescription for the robot localization workflow.
@@ -35,7 +36,10 @@ def generate_launch_description():
     """
 
     # let's do our single dictionary with everything the user might want to edit
-    # bag_files can now specify 'start_offset' (in seconds) and remapping.
+    # bag_files can now specify:
+    #   'start_offset' (in seconds),
+    #   'remaps' (dict of old_topic:new_topic),
+    #   'delay' (in seconds, optional) -> if present, we sleep before playing the bag
     LAUNCH_CONFIG = {
         "environment": {
             "FILE_PATH": None  # we'll fill this at runtime once we know the directory
@@ -53,9 +57,8 @@ def generate_launch_description():
                 "output": "screen",
                 "parameters": None,  # not used here
                 "remappings": None,
-                "arguments": ["0", "0", "0", "0", "0", "1", "0", "base_link", "imu_link"]
+                "arguments": ["0", "0", "0", "0", "0", "0", "-1", "base_link", "imu_link"]
             },
-
             {
                 "name": "ekf_filter_node_odom",
                 "package": "robot_localization",
@@ -89,50 +92,46 @@ def generate_launch_description():
                 ],
                 "arguments": None
             },
-
-
-            {
-                "name": "ekf_filter_node_odom",
-                "package": "robot_localization",
-                "executable": "ekf_node",
-                "output": "screen",
-                "parameters": "param_file",  # string "param_file" means "use parameter_file_path"
-                "remappings": [
-                    ("odometry/filtered", "odometry/local/cool"),
-                    ("imu/data", "cool/data"),
-                ],
-                "arguments": None
-            },
-            {
-                "name": "ekf_filter_node_map",
-                "package": "robot_localization",
-                "executable": "ekf_node",
-                "output": "screen",
-                "parameters": "param_file",
-                "remappings": [
-                    ("odometry/filtered", "odometry/global/cool"),
-                    ("imu/data", "cool/data"),
-                    ("accel/filtered", "accel/filtered/cool"),
-                ],
-                "arguments": None
-            },
-            {
-                "name": "navsat_transform",
-                "package": "robot_localization",
-                "executable": "navsat_transform_node",
-                "output": "screen",
-                "parameters": "param_file",
-                "remappings": [
-                    ("imu/data", "cool/data"),
-                    ("gps/fix", "gps/fix/cool"),
-                    ("gps/filtered", "gps/filtered/cool"),
-                    ("odometry/gps", "odometry/gps/cool"),
-                    ("odometry/filtered", "odometry/global/cool")
-                ],
-                "arguments": None
-            },
-
-
+            # {
+            #     "name": "ekf_filter_node_odom",
+            #     "package": "robot_localization",
+            #     "executable": "ekf_node",
+            #     "output": "screen",
+            #     "parameters": "param_file",  # string "param_file" means "use parameter_file_path"
+            #     "remappings": [
+            #         ("odometry/filtered", "odometry/local/cool"),
+            #         ("imu/data", "cool/data"),
+            #     ],
+            #     "arguments": None
+            # },
+            # {
+            #     "name": "ekf_filter_node_map",
+            #     "package": "robot_localization",
+            #     "executable": "ekf_node",
+            #     "output": "screen",
+            #     "parameters": "param_file",
+            #     "remappings": [
+            #         ("odometry/filtered", "odometry/global/cool"),
+            #         ("imu/data", "cool/data"),
+            #         ("accel/filtered", "accel/filtered/cool"),
+            #     ],
+            #     "arguments": None
+            # },
+            # {
+            #     "name": "navsat_transform",
+            #     "package": "robot_localization",
+            #     "executable": "navsat_transform_node",
+            #     "output": "screen",
+            #     "parameters": "param_file",
+            #     "remappings": [
+            #         ("imu/data", "cool/data"),
+            #         ("gps/fix", "gps/fix/cool"),
+            #         ("gps/filtered", "gps/filtered/cool"),
+            #         ("odometry/gps", "odometry/gps/cool"),
+            #         ("odometry/filtered", "odometry/global/cool")
+            #     ],
+            #     "arguments": None
+            # },
 
             {
                 "name": "csv_publisher",
@@ -156,19 +155,20 @@ def generate_launch_description():
         "bag_files": [
             {
                 "file_path": "/home/kearfott/ros2_ws/12_20_2024_skyline_2/12_20_2024_skyline_2_0.db3",
-                "start_offset": 262.47,  
+                "start_offset": 262.47,
                 "remaps": {
-                    # key: old topic, value: new topic
                     "/imu/data": "/mems/raw",
-                }
+                },
+                "delay": 5  # our optional delay: we'll wait 5 seconds before playing this bag
             },
-            # if you want to add more bag plays, just add more dicts here
+            # additional bags can go here, for example:
             # {
             #     "file_path": "/path/to/another_bag.db3",
             #     "start_offset": 400,
             #     "remaps": {
             #         "/some/topic": "/other/topic"
-            #     }
+            #     },
+            #     "delay": 2
             # },
         ]
     }
@@ -235,13 +235,32 @@ def generate_launch_description():
         for old_topic, new_topic in remaps.items():
             cmd.extend(["--remap", f"{old_topic}:={new_topic}"])
 
-        # build the ExecuteProcess
-        process_actions.append(
-            ExecuteProcess(
-                cmd=cmd,
-                output="screen"
+        # optional delay
+        # if present, we prefix our final command with a 'sleep <delay>' so
+        # everything else has time to come up
+        delay = bag_info.get("delay", 0)
+        if delay < 0:
+            console.log("[bold yellow]Ignoring negative delay. That makes no sense, friend![/bold yellow]")
+            delay = 0
+
+        if delay > 0:
+            # we turn our list into a single string, then prefix 'sleep <delay> &&'
+            joined_cmd = " ".join(cmd)
+            exec_cmd = f"sleep {delay} && {joined_cmd}"
+            process_actions.append(
+                ExecuteProcess(
+                    cmd=["bash", "-c", exec_cmd],
+                    output="screen"
+                )
             )
-        )
+        else:
+            # no delay, just run normally
+            process_actions.append(
+                ExecuteProcess(
+                    cmd=cmd,
+                    output="screen"
+                )
+            )
 
     # now assemble everything into one LaunchDescription
     return LaunchDescription(
