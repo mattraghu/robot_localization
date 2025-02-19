@@ -46,7 +46,7 @@ def generate_launch_description():
         },
         "parameter_file_path": "/home/kearfott/ros2_ws/src/robot_localization/params/dual_ekf_navsat_example.yaml",
         "launch_arguments": [
-            ("output_final_position", "true"),
+            ("output_final_position", "true"), 
             ("output_location", "~/dual_ekf_navsat_example_debug.txt")
         ],
         "nodes": [
@@ -57,7 +57,7 @@ def generate_launch_description():
                 "output": "screen",
                 "parameters": None,  # not used here
                 "remappings": None,
-                "arguments": ["0", "0", "0", "0", "0", "0", "-1", "base_link", "imu_link"]
+                "arguments": ["0", "0", "0", "0", "0", "0", "1", "base_link", "imu_link"]
             },
             {
                 "name": "ekf_filter_node_odom",
@@ -84,8 +84,8 @@ def generate_launch_description():
                 "output": "screen",
                 "parameters": "param_file",
                 "remappings": [
-                    ("imu/data", "imu/data"),
-                    ("gps/fix", "gps/fix"),
+                    ("imu/data", "cool/data"),
+                    ("gps/fix", "skyline/fix"),
                     ("gps/filtered", "gps/filtered"),
                     ("odometry/gps", "odometry/gps"),
                     ("odometry/filtered", "odometry/global")
@@ -133,15 +133,15 @@ def generate_launch_description():
             #     "arguments": None
             # },
 
-            {
-                "name": "csv_publisher",
-                "package": "imu_csv_publisher",
-                "executable": "csv_publisher",
-                "output": "screen",
-                "parameters": "param_file",
-                "remappings": [("imu/data", "imu/data")],
-                "arguments": None
-            },
+            # {
+            #     "name": "csv_publisher",
+            #     "package": "imu_csv_publisher",
+            #     "executable": "csv_publisher",
+            #     "output": "screen",
+            #     "parameters": "param_file",
+            #     "remappings": [("imu/data", "imu/data")],
+            #     "arguments": None
+            # },
             {
                 "name": "new_converter_node",
                 "package": "message_converter",
@@ -151,13 +151,41 @@ def generate_launch_description():
                 "remappings": [("imu/data", "imu/data")],
                 "arguments": None
             },
+            { 
+                "name": "skyline_publisher",
+                "package": "skyline_publisher",
+                "executable": "skyline_processor.py",
+                "output": "screen",
+                "parameters": "param_file",
+                "remappings": [("imu/data", "imu/data")],
+                "arguments": None
+            },
+            { 
+                "name": "image_stamp_converter",
+                "package": "skyline_publisher",
+                "executable": "image_stamp_converter.py",
+                "output": "screen",
+                "parameters": "param_file",
+                "remappings": [("imu/data", "imu/data")],
+                "arguments": None
+            },
+            {
+                "name": "dgps_file_publisher",
+                "package": "gnss_publisher",
+                "executable": "dgps_file_publisher",
+                "output": "screen",
+                "remappings": [("gps/last_known_fix", "gps/last_known_fix")],
+                "parameters": "param_file",
+                "arguments": None
+            }
         ],
         "bag_files": [
             {
-                "file_path": "/home/kearfott/ros2_ws/12_20_2024_skyline_2/12_20_2024_skyline_2_0.db3",
-                "start_offset": 262.47,
+                "file_path": "2_10_2025_skyline_1/2_10_2025_skyline_1_0.db3", #/home/kearfott/ros2_ws/12_20_2024_skyline_2/12_20_2024_skyline_2_0.db3",
+                "start_offset": 2995.7, # 5265.35601
                 "remaps": {
                     "/imu/data": "/mems/raw",
+                    "/camera/image_raw": "/camera/raw",
                 },
                 "delay": 5  # our optional delay: we'll wait 5 seconds before playing this bag
             },
@@ -262,7 +290,7 @@ def generate_launch_description():
                 )
             )
 
-    # now assemble everything into one LaunchDescription
+    # now assemble everything into one LaunchDescription 
     return LaunchDescription(
         launch_args_actions + node_actions + process_actions
     )
