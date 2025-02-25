@@ -182,7 +182,7 @@ def generate_launch_description():
         "bag_files": [
             {
                 "file_path": "2_10_2025_skyline_1/2_10_2025_skyline_1_0.db3", #/home/kearfott/ros2_ws/12_20_2024_skyline_2/12_20_2024_skyline_2_0.db3",
-                "start_offset": 2995.7, # 5265.35601
+                "start_offset": 5265.35601, #2995.7, 
                 "remaps": {
                     "/imu/data": "/mems/raw",
                     "/camera/image_raw": "/camera/raw",

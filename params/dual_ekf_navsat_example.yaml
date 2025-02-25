@@ -214,17 +214,19 @@ new_converter_node:
 dgps_file_publisher:
   ros__parameters:
     file_path: "/media/kearfott/PBKFD-0951/vanrun_Mimi_Kgn42_10Feb2025.txt"
-    start_est_time: "2025-02-10 16:06:07.127" # this is the start "2025-02-10 16:43:56.783010" 
+    start_est_time: "2025-02-10 16:43:56.783010" # "2025-02-10 16:06:07.127" # this is the start  
     use_image_header_time: true 
 
 skyline_publisher:
   ros__parameters: 
     image_source: "live"
-    password: "420444"
-    precompute_csv_file: "vanrun_Mimi_Kgn42_10Feb2025.csv"
-    # precompute_csv_file: "precompute.csv"
+    password: "-1"
+    # precompute_csv_file: "vanrun_Mimi_Kgn42_10Feb2025.csv"
+    precompute_csv_file: "sdk_precompute.csv"
     visualize: true
     # use_timer: true
     # publish_rate: 0.0119047619
     queue_images: true
     num_locations: 2
+    test_all_headings: false
+    sdk_or_api: 'sdk'
