@@ -84,64 +84,14 @@ def generate_launch_description():
                 "output": "screen",
                 "parameters": "param_file",
                 "remappings": [
-                    ("imu/data", "cool/data"),
+                    ("imu/data", "imu/data"),
                     ("gps/fix", "skyline/fix"),
                     ("gps/filtered", "gps/filtered"),
-                    ("odometry/gps", "odometry/gps"),
+                    ("odometry/gps", "odometry/skyline"),
                     ("odometry/filtered", "odometry/global")
                 ],
                 "arguments": None
             },
-            # {
-            #     "name": "ekf_filter_node_odom",
-            #     "package": "robot_localization",
-            #     "executable": "ekf_node",
-            #     "output": "screen",
-            #     "parameters": "param_file",  # string "param_file" means "use parameter_file_path"
-            #     "remappings": [
-            #         ("odometry/filtered", "odometry/local/cool"),
-            #         ("imu/data", "cool/data"),
-            #     ],
-            #     "arguments": None
-            # },
-            # {
-            #     "name": "ekf_filter_node_map",
-            #     "package": "robot_localization",
-            #     "executable": "ekf_node",
-            #     "output": "screen",
-            #     "parameters": "param_file",
-            #     "remappings": [
-            #         ("odometry/filtered", "odometry/global/cool"),
-            #         ("imu/data", "cool/data"),
-            #         ("accel/filtered", "accel/filtered/cool"),
-            #     ],
-            #     "arguments": None
-            # },
-            # {
-            #     "name": "navsat_transform",
-            #     "package": "robot_localization",
-            #     "executable": "navsat_transform_node",
-            #     "output": "screen",
-            #     "parameters": "param_file",
-            #     "remappings": [
-            #         ("imu/data", "cool/data"),
-            #         ("gps/fix", "gps/fix/cool"),
-            #         ("gps/filtered", "gps/filtered/cool"),
-            #         ("odometry/gps", "odometry/gps/cool"),
-            #         ("odometry/filtered", "odometry/global/cool")
-            #     ],
-            #     "arguments": None
-            # },
-
-            # {
-            #     "name": "csv_publisher",
-            #     "package": "imu_csv_publisher",
-            #     "executable": "csv_publisher",
-            #     "output": "screen",
-            #     "parameters": "param_file",
-            #     "remappings": [("imu/data", "imu/data")],
-            #     "arguments": None
-            # },
             {
                 "name": "new_converter_node",
                 "package": "message_converter",
@@ -173,7 +123,7 @@ def generate_launch_description():
                 "name": "dgps_file_publisher",
                 "package": "gnss_publisher",
                 "executable": "dgps_file_publisher",
-                "output": "screen",
+                "output": "log",
                 "remappings": [("gps/last_known_fix", "gps/last_known_fix")],
                 "parameters": "param_file",
                 "arguments": None
@@ -181,14 +131,18 @@ def generate_launch_description():
         ],
         "bag_files": [
             {
-                "file_path": "2_10_2025_skyline_1/2_10_2025_skyline_1_0.db3", #/home/kearfott/ros2_ws/12_20_2024_skyline_2/12_20_2024_skyline_2_0.db3",
-                "start_offset": 5265.35601, #2995.7, 
+                # "file_path": "2_10_2025_skyline_1/2_10_2025_skyline_1_0.db3", #/home/kearfott/ros2_ws/12_20_2024_skyline_2/12_20_2024_skyline_2_0.db3",
+                # "start_offset": 5265.35601, #2995.7, 
+
+                # "file_path": "/home/kearfott/ros2_ws/03_03_2025_skyline_6/03_03_2025_skyline_6_0.db3",
+                "file_path": "/media/kearfott/PBKFD-104/03_03_2025_skyline_6/03_03_2025_skyline_6_0_remapped.db3/03_03_2025_skyline_6_0_remapped.db3_0.db3",
+                "start_offset": 1703.0, # 100.0
                 "remaps": {
-                    "/imu/data": "/mems/raw",
-                    "/camera/image_raw": "/camera/raw",
+                    "imu/data": "/mems/raw",
+                    "camera/image_raw": "/camera/raw",
                 },
-                "delay": 5  # our optional delay: we'll wait 5 seconds before playing this bag
-            },
+                "delay": 1  
+            }, 
             # additional bags can go here, for example:
             # {
             #     "file_path": "/path/to/another_bag.db3",
