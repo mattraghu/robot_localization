@@ -136,7 +136,7 @@ def generate_launch_description():
 
                 # "file_path": "/home/kearfott/ros2_ws/03_03_2025_skyline_6/03_03_2025_skyline_6_0.db3",
                 "file_path": "/media/kearfott/PBKFD-104/03_03_2025_skyline_6/03_03_2025_skyline_6_0_remapped.db3/03_03_2025_skyline_6_0_remapped.db3_0.db3",
-                "start_offset": 1703.0, # 100.0
+                "start_offset": 1707.7, # 100.0 i did 1703 BEFORE
                 "remaps": {
                     "imu/data": "/mems/raw",
                     "camera/image_raw": "/camera/raw",
