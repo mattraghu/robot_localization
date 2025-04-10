@@ -1,0 +1,259 @@
+ekf_filter_node_odom:
+  ros__parameters:
+    frequency: 30.0
+    two_d_mode: false
+
+    map_frame: map
+    odom_frame: odom
+    base_link_frame: base_link
+    world_frame: odom
+
+    # The second IMU
+    imu0: imu/data
+    imu0_remove_gravitational_acceleration: true
+    imu0_queue_size: 100
+    imu0_relative: false
+    imu0_config:
+      [false, false, false,
+       true, true, true,
+       false,  false,  false,
+       false, false, false,
+      #  true,  true,  true, 
+       true,  false,  true]
+
+    # zero twist
+    twist0: /zero_twist
+    twist0_queue_size: 10
+    twist0_nodelay: true
+    twist0_differential: false
+    twist0_config:
+      [false, false, false,
+       false, false, false,
+       false,  true,  false,
+       false, false, false,
+       false, false, false]
+
+    initial_state:
+      [0.0, 0.0, 0.0,
+       0.0150098316, -0.0385717765, 1.01857415,
+       0.0, 0.0, 0.0,
+       0.0, 0.0, 0.0,
+       0.0, 0.0, 0.0]
+
+    # optional control inputs if needed
+    use_control: true
+    control_config: [false, true, false, false, false, false]
+    acceleration_limits: [10000.0, 0.0, 0.0, 1000.0, 1000.0, 1000.0]
+
+    # optional data smoothing
+    smooth_lagged_data: true
+    history_length: 40.0
+
+    dynamic_process_noise_covariance: true
+
+ekf_filter_node_map:
+  ros__parameters:
+    frequency: 30.0
+    two_d_mode: false
+
+    map_frame: map
+    odom_frame: odom
+    base_link_frame: base_link
+    world_frame: map
+
+    # Odom settings
+    odom0: odometry/gps
+    odom0_queue_size: 10
+    odom0_nodelay: true
+    odom0_differential: false
+    odom0_config: 
+      [true,  true,  true, # x, y, z
+       false, false, false, # roll, pitch, yaw
+       false, false, false, # vx, vy, vz
+       false, false, false, # vroll, vpitch, vyaw
+       false, false, false] # ax, ay, az
+
+    odom1: odometry/skyline
+    odom1_queue_size: 10
+    odom1_nodelay: true
+    odom1_config: 
+      [true,  true,  false,
+       false, false, false,
+       false, false, false,
+       false, false, false,
+       false, false, false]
+
+
+    # The second IMU
+    imu0: imu/data
+    imu0_remove_gravitational_acceleration: true
+    imu0_queue_size: 100
+    imu0_relative: false
+    imu0_config:
+      [false, false, false,
+       true, true, true,
+       false,  false,  false,
+       false, false, false,
+      #  true,  true,  true, 
+       true,  false,  true]
+
+    # zero twist
+    twist0: /zero_twist
+    twist0_queue_size: 10
+    twist0_nodelay: true
+    twist0_differential: false
+    twist0_config:
+      [false, false, false,
+       false, false, false,
+       false,  true,  false,
+       false, false, false,
+       false, false, false]
+
+    initial_state:
+      [0.0, 0.0, 0.0,
+       0.0150098316, -0.0385717765, 1.01857415,
+       0.0, 0.0, 0.0,
+       0.0, 0.0, 0.0,
+       0.0, 0.0, 0.0]
+
+# are ordered as x, y, z, roll, pitch, yaw, vx, vy, vz, vroll, vpitch, vyaw, ax, ay, az. 
+    process_noise_covariance: [ 0.05, 0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                0.0,    1e-9, 0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                0.0,    0.0,    0.05, 0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                0.0,    0.0,    0.0,    1e-9, 0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                0.0,    0.0,    0.0,    0.0,    1e-9, 0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                0.0,    0.0,    0.0,    0.0,    0.0,    1e-7, 0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    2.77, 0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     1e-9, 0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.05, 0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    1e-3, 0.0,    0.0,    0.0,    0.0,    0.0,
+                                0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    1e-3, 0.0,    0.0,    0.0,    0.0,
+                                0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    1e-3, 0.0,    0.0,    0.0,
+                                0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.14, 0.0,    0.0,
+                                0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    1e-99, 0.0,
+                                0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.145]
+    # initial_estimate_covariance: [1e-20, 0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,     0.0,    0.0,    0.0,
+    #                               0.0,    1e-20, 0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,     0.0,    0.0,    0.0,
+    #                               0.0,    0.0,    1e-20, 0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,     0.0,    0.0,    0.0,
+    #                               0.0,    0.0,    0.0,    1e-20, 0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,     0.0,    0.0,    0.0,
+    #                               0.0,    0.0,    0.0,    0.0,    1e-20, 0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,     0.0,    0.0,    0.0,
+    #                               0.0,    0.0,    0.0,    0.0,    0.0,    1e-20, 0.0,    0.0,    0.0,    0.0,     0.0,     0.0,     0.0,    0.0,    0.0,
+    #                               0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    1e-20, 0.0,    0.0,    0.0,     0.0,     0.0,     0.0,    0.0,    0.0,
+    #                               0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    1e-20, 0.0,    0.0,     0.0,     0.0,     0.0,    0.0,    0.0,
+    #                               0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    1e-20, 0.0,     0.0,     0.0,     0.0,    0.0,    0.0,
+    #                               0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    1e-20,  0.0,     0.0,     0.0,    0.0,    0.0,
+    #                               0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     1e-20,  0.0,     0.0,    0.0,    0.0,
+    #                               0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     1e-20,  0.0,    0.0,    0.0,
+    #                               0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,     1e-20, 0.0,    0.0,
+    #                               0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,     0.0,    1e-20, 0.0,
+    #                               0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,     0.0,    0.0,    1e-20]
+
+    # stamped_control: false
+    # control_timeout: 0.2
+    publish_acceleration: true
+
+    use_control: true
+    control_config: [false, true, false, false, false, false]
+    acceleration_limits: [10000.0, 0.0, 1000.0, 1000.0, 1000.0, 1000.0]
+
+    smooth_lagged_data: true
+    history_length: 40.0
+
+    dynamic_process_noise_covariance: true
+
+
+
+navsat_transform:
+  ros__parameters:
+    frequency: 10.0 
+    yaw_offset: 0.0
+    zero_altitude: true
+    use_odometry_yaw: true
+    magnetic_declination_radians: -0.0001654
+
+    wait_for_datum: true
+    datum: [40.736805291, -74.16792899233333, 0.00]
+
+    smooth_lagged_data: true
+    history_length: 40.0
+
+csv_publisher:
+  ros__parameters:
+    topic_name: "/cool/data"
+    gyro_file: "/media/kearfott/PBKFD-0951/delta_ang.csv"
+    accel_file: "/media/kearfott/PBKFD-0951/delta_vel.csv"
+    start_time_est: "2024-12-20 14:15:15"
+    skip_until_est: "2024-12-20 14:54:37.92"
+    wait_for_service_trigger: true
+    # downsample_hz: 100.0
+
+    # Covariances for IMU
+    imu_orientation_covariance: [-1.0, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.01]
+    imu_angular_velocity_covariance: [0.0001, 0.0, 0.0, 0.0, 0.0001, 0.0, 0.0, 0.0, 0.0001]
+    imu_linear_acceleration_covariance: [0.1, 0.0, 0.0, 0.0, 0.1, 0.0, 0.0, 0.0, 0.1]
+
+    export_csv: false
+
+    orientation_topic: "/imu/data"
+    # .86, -2.21, 58.36
+    # initial_orientation_rpy: [0.0141371669, -0.0895353906, 0.0174532925]
+    initial_orientation_rpy: [0.0150098316, -0.0385717765, 1.01857415]
+
+
+
+new_converter_node:
+  ros__parameters:
+    imu_topic_in: "/mems/raw"
+    imu_topic_out: "/imu/data"
+    camera_topic_in: "/camera/image_raw"
+    camera_topic_out: "/camera/image"
+    # start_est_time: "2024-02-05 10:13:14.385"
+    # downsample_hz: 200.0
+
+    # Covariances for IMU
+    imu_orientation_covariance: [0.01, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.01]
+    imu_angular_velocity_covariance: [2.1e-18, 0.0, 0.0, 0.0, 2.1e-18, 0.0, 0.0, 0.0, 2.1e-18]
+    imu_linear_acceleration_covariance: [5.4, 0.0, 0.0, 0.0, 0.4, 0.0, 0.0, 0.0, 0.4]
+
+    # orientation_offset_roll: -1.05
+    # orientation_offset_pitch: -0.05
+    orientation_offset_yaw: -40.0 # oo ee ah ah 
+
+    defer_start_service_call: false
+
+dgps_file_publisher: 
+  ros__parameters:
+    #file_path: "/media/kearfott/PBKFD-0951/vanrun_Mimi_Kgn42_10Feb2025.txt" 
+    #start_est_time: "2025-02-10 16:43:56.783010" # "2025-02-10 16:06:07.127" # this is the start  
+    file_path: "/media/kearfott/PBKFD-104/3-3-gps-data-mems-fog.txt"  
+    start_est_time: "2025-03-03 12:54:46.590000"
+    # start_est_time: "2025-03-03 12:54:55.590000"
+
+    broadcast_fix_covariance: [0.01, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.01]
+    last_known_fix_covariance: [0.01, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.01]
+
+    fix_broadcast_topic: "/skyline/fix"
+
+    use_image_header_time: true  
+    # publish_rate: 0.2
+    # publish_rate: 1.0
+    publish_rate: 0.0
+
+    time_offset_seconds: -3.4
+
+skyline_publisher:
+  ros__parameters: 
+    image_source: "live"
+    password: "-1"
+    # precompute_csv_file: "/home/kearfott/Downloads/splined_path_200m_segments.csv"
+    # precompute_csv_file: "/home/kearfott/ros2_ws/03_03_25_precompute_700_Good.csv"
+    precompute_csv_file: "/home/kearfott/ros2_ws/03_03_25_precompute_100_Goodest.csv"
+    visualize: false
+    display_image: false
+    use_timer: false
+    publish_rate: 0.1 
+    queue_images: false
+    num_locations: 2
+    test_all_headings: false
+    aoi_storage_dir: '/media/kearfott/PBKFD-104/aoi_storage'
+    sdk_or_api: 'sdk'
