@@ -12,15 +12,15 @@ ekf_filter_node_odom:
 
 
     odom0: /odometry/lidar
-    odom0_config: [true, true, true, # x, y, z
+    odom0_config: [false, false, false, # x, y, z
                   true, true, true, # roll, pitch, yaw
-                  false,  false,  false, # vx, vy, vz
+                  true,  true,  true, # vx, vy, vz
                   false, false, false, # vroll, vpitch, vyaw  
                   false, false, false] # ax, ay, az
     odom0_queue_size: 10
     odom0_nodelay: true
     odom0_differential: false
-    odom0_relative: false
+    odom0_relative: true
 
     # odom1: slam/odometry
     # odom1_config: [true, true, true, # x, y, z
@@ -33,17 +33,17 @@ ekf_filter_node_odom:
     # odom1_differential: false
     # odom1_relative: false
 
-    imu0: imu/data
-    imu0_config: [false, false, false,
-                 true,  true,  true,
-                 false, false, false,
-                 false,  false,  false,
-                 false,  false,  false]
-    imu0_nodelay: false
-    imu0_differential: false
-    imu0_relative: false
-    imu0_queue_size: 10
-    imu0_remove_gravitational_acceleration: true
+    # imu0: imu/data
+    # imu0_config: [false, false, false,
+    #              true,  true,  true,
+    #              false, false, false,
+    #              false,  false,  false,
+    #              false,  false,  false]
+    # imu0_nodelay: false
+    # imu0_differential: false
+    # imu0_relative: false
+    # imu0_queue_size: 10
+    # imu0_remove_gravitational_acceleration: true
 
     use_control: false
 
@@ -123,7 +123,7 @@ navsat_transform:
     frequency: 30.0
     delay: 3.0
     magnetic_declination_radians: 0.0429351  # For lat/long 55.944831, -3.186998
-    yaw_offset: 4.000796327  # IMU reads 0 facing magnetic north, not east
+    yaw_offset: 9.49858347  # IMU reads 0 facing magnetic north, not east
     zero_altitude: false
     publish_filtered_gps: true
     use_odometry_yaw: false
