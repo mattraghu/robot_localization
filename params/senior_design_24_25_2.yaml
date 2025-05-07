@@ -1,0 +1,152 @@
+ekf_filter_node_odom:
+  ros__parameters:
+    frequency: 30.0
+    two_d_mode: false
+    print_diagnostics: true
+    debug: false
+
+    map_frame: map
+    odom_frame: odom
+    base_link_frame: base_link
+    world_frame: odom
+
+
+    odom0: /odometry/lidar
+    odom0_config: [false, false, false, # x, y, z
+                  true, true, true, # roll, pitch, yaw
+                  true,  true,  true, # vx, vy, vz
+                  false, false, false, # vroll, vpitch, vyaw  
+                  false, false, false] # ax, ay, az
+    odom0_queue_size: 10
+    odom0_nodelay: true
+    odom0_differential: false
+    odom0_relative: true
+
+    odom1: slam/odometry
+    odom1_config: [false, false, false, # x, y, z
+                  true, true, true, # roll, pitch, yaw
+                  true,  true,  true, # vx, vy, vz
+                  false, false, false, # vroll, vpitch, vyaw  
+                  false, false, false] # ax, ay, az
+    odom1_queue_size: 10
+    odom1_nodelay: true
+    odom1_differential: false 
+    odom1_relative: true
+
+    # odom1: slam/odometry
+    # odom1_config: [true, true, true, # x, y, z
+    #               true, true, true, # roll, pitch, yaw
+    #               false,  false,  false, # vx, vy, vz
+    #               false, false, false, # vroll, vpitch, vyaw  
+    #               false, false, false] # ax, ay, az
+    # odom1_queue_size: 10
+    # odom1_nodelay: true
+    # odom1_differential: false
+    # odom1_relative: false
+
+    # imu0: imu/data
+    # imu0_config: [false, false, false,
+    #              true,  true,  true,
+    #              false, false, false,
+    #              false,  false,  false,
+    #              false,  false,  false]
+    # imu0_nodelay: false
+    # imu0_differential: false
+    # imu0_relative: false
+    # imu0_queue_size: 10
+    # imu0_remove_gravitational_acceleration: true
+
+    use_control: false
+
+    publish_tf: true
+    smooth_lagged_data: true
+    history_length: 10.0
+
+ekf_filter_node_map:
+  ros__parameters:
+    frequency: 30.0
+    sensor_timeout: 10.1
+    two_d_mode: false
+    transform_time_offset: 0.0
+    transform_timeout: 0.0
+    print_diagnostics: true
+    debug: false
+    publish_acceleration: true
+    publish_tf: true
+
+    map_frame: map
+    odom_frame: odom
+    base_link_frame: base_link
+    world_frame: map
+
+
+
+    odom0: odometry/gps
+    odom0_config: [true, true, false,
+                  false, false, false, # roll, pitch, yaw
+                  false, false, false, # vx, vy, vz
+                  false, false, false, # vroll, vpitch, vyaw
+                  false, false, false] # ax, ay, az
+    odom0_queue_size: 10
+    odom0_nodelay: true
+    odom0_differential: false
+    odom0_relative: false
+
+    odom1: odometry/lidar
+    odom1_config: [false, false, false, # x, y, z
+                  true, true, true, # roll, pitch, yaw
+                  true,  true,  true, # vx, vy, vz
+                  false, false, false, # vroll, vpitch, vyaw  
+                  false, false, false] # ax, ay, az
+    odom1_queue_size: 10
+    odom1_nodelay: true
+    odom1_differential: false 
+    odom1_relative: true
+
+    odom2: slam/odometry
+    odom2_config: [false, false, false, # x, y, z
+                  true, true, true, # roll, pitch, yaw
+                  true,  true,  true, # vx, vy, vz
+                  false, false, false, # vroll, vpitch, vyaw  
+                  false, false, false] # ax, ay, az
+    odom2_queue_size: 10
+    odom2_nodelay: true
+    odom2_differential: false 
+    odom2_relative: true
+
+    # imu0: imu/data
+    # imu0_config: [false, false, false,
+    #               true,  true,  true,
+    #               false, false, false,
+    #               false,  false,  false,
+    #               false,  false,  false]
+    # imu0_nodelay: false
+    # imu0_differential: false
+    # imu0_relative: false
+    # imu0_queue_size: 10
+    # imu0_remove_gravitational_acceleration: true
+
+    use_control: false
+    smooth_lagged_data: true
+    history_length: 10.0
+
+navsat_transform:
+  ros__parameters:
+    frequency: 30.0
+    delay: 3.0
+    magnetic_declination_radians: 0.0 #-0.2184
+    yaw_offset: 2.14
+    zero_altitude: false
+    publish_filtered_gps: true
+    use_odometry_yaw: false
+    # 40.7441795, -74.02775733333333, 5.700000000000003
+    wait_for_datum: true
+    datum: [
+      40.7446795, -74.02789183333333, -14.899999999999999
+    ]
+
+    smooth_lagged_data: true
+    history_length: 10.0
+
+
+
