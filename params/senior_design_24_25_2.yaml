@@ -33,28 +33,17 @@ ekf_filter_node_odom:
     odom1_differential: false 
     odom1_relative: true
 
-    # odom1: slam/odometry
-    # odom1_config: [true, true, true, # x, y, z
-    #               true, true, true, # roll, pitch, yaw
-    #               false,  false,  false, # vx, vy, vz
-    #               false, false, false, # vroll, vpitch, vyaw  
-    #               false, false, false] # ax, ay, az
-    # odom1_queue_size: 10
-    # odom1_nodelay: true
-    # odom1_differential: false
-    # odom1_relative: false
-
-    # imu0: imu/data
-    # imu0_config: [false, false, false,
-    #              true,  true,  true,
-    #              false, false, false,
-    #              false,  false,  false,
-    #              false,  false,  false]
-    # imu0_nodelay: false
-    # imu0_differential: false
-    # imu0_relative: false
-    # imu0_queue_size: 10
-    # imu0_remove_gravitational_acceleration: true
+    imu0: imu/data
+    imu0_config: [false, false, false,
+                 false,  false,  false,
+                 false, false, false,
+                 false,  false,  false,
+                 false,  false,  false]
+    imu0_nodelay: false
+    imu0_differential: false
+    imu0_relative: false
+    imu0_queue_size: 10
+    imu0_remove_gravitational_acceleration: true
 
     use_control: false
 
@@ -139,7 +128,6 @@ navsat_transform:
     zero_altitude: false
     publish_filtered_gps: true
     use_odometry_yaw: false
-    # 40.7441795, -74.02775733333333, 5.700000000000003
     wait_for_datum: true
     datum: [
       40.7446795, -74.02789183333333, -14.899999999999999

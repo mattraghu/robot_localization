@@ -60,23 +60,7 @@ LAUNCH_CONFIG = {
             "output": "screen",
             "parameters": None,
             "remappings": None,
-            # "arguments": ["0", "0", "0", "0.7071", "0", "0", "0.7071", "base_link", "imu_link"],
             "arguments": ["0", "0", "0", "0", "0", "0", "1", "base_link", "imu_link"],
-
-            # static_transforms:
-            #   child_frame_id: imu_link
-            #     parent_frame_id: base_link
-            #     translation:
-            #     x: -0.067
-            #     y: 0.019
-            #     z: 0.110
-            #     rotation:
-            #     x: -0.5
-            #     y: -0.5
-            #     z: -0.5
-            #     w:  0.5
-            # "arguments": ["-0.067", "0.019", "0.110", "-0.5", "-0.5", "-0.5", "0.5", "base_link", "imu_link"],
-
         },
         {
             "name": "static_tf_gps_to_base_link",
