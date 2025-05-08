@@ -1,228 +1,220 @@
 #!/usr/bin/env python3
-# ---
-#                                ROS 2 LAUNCH: DICT-DRIVEN EDITION
-# ---
+# =============================================================
+#        ROS 2 LAUNCH — MAX-PUMP *DICT-DRIVEN* EDITION 🏋️‍♂️
+#  One file to curl them all: static TFs, dual EKFs, NavSat,
+#  optional utility nodes, **and** bag-file playback with
+#  remap-based blacklisting (no --exclude-topics, per bro’s spec).
+#
+#  Keep the swagger, keep the logic — zero functional drift. 🔥
+#
+#  Author: Matthew Raghunandan
+# =============================================================
 
-"""
-Centralised, one-stop-shop launch file.
-
-• Three static transforms:
-    ▸  base_link ➞ imu_link   (identity, keeps TF happy)
-    ▸  map       ➞ camera_init  (camera frame anchored to map)
-    ▸  base_link ➞ body         (legacy frame rename)
-
-• Dual EKF nodes (local + global) and NavSat Transform.
-• Extra helper nodes (converter, Skyline, etc.) left in for convenience.
-• Bag-file playback section handles offsets, remaps & optional delays.
-
-Tweak the LAUNCH_CONFIG dict ↓ and everything else Just Works™.
-
-Author: Matthew Raghunandan
-"""
-
-# ---
-#                                IMPORTS
-# ---
-
+# -
+#                           IMPORTS
+# -
 import os
+from typing import Dict, Any, List
+
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, ExecuteProcess
 from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
 from rich.console import Console
 
-console = Console()
+console = Console(highlight=False)
 
-# ---
-#                                CONFIG DICTIONARY
-# ---
-
-LAUNCH_CONFIG = {
-    # Will be filled in at runtime once we locate the package
+# -
+#                       CONFIG DICTIONARY
+# -
+LAUNCH_CONFIG: Dict[str, Any] = {
+    # Will get filled at runtime when we resolve the package path
     "environment": {"FILE_PATH": None},
 
-    # Parameter YAML (updated at runtime to absolute path)
+    # Param YAML (relative to robot_localization/params)
     "parameter_file_path": "senior_design_24_25_2.yaml",
 
-    # Declared command-line launch arguments
+    # CLI launch arguments (name, default)
     "launch_arguments": [
         ("output_final_position", "true"),
         ("output_location", "~/dual_ekf_navsat_example_debug.txt"),
     ],
 
-    # Nodes to spin up 🚀
+    # Nodes to spin up — add/remove at will
     "nodes": [
         # ---------- STATIC TRANSFORMS ----------
+        # base_link ➜ imu_link  (identity quat)
         {
-            "name": "static_tf_base_to_imu",
-            "package": "tf2_ros",
-            "executable": "static_transform_publisher",
-            "output": "screen",
-            "parameters": None,
-            "remappings": None,
-            "arguments": ["0", "0", "0", "0", "0", "0", "1", "base_link", "imu_link"],
+            "name":        "static_tf_base_to_imu",
+            "package":     "tf2_ros",
+            "executable":  "static_transform_publisher",
+            "arguments":   ["0", "0", "0", "0", "0", "0", "1", "base_link", "imu_link"],
         },
+        # map ➜ camera_init (anchor camera to map)
         {
-            "name": "static_tf_gps_to_base_link",
-            "package": "tf2_ros",
-            "executable": "static_transform_publisher",
-            "output": "screen",
-            "parameters": None,
-            "remappings": None,
-            "arguments": ["0", "0", "0", "0", "0", "0", "base_link", "gps"],
+            "name":        "static_tf_map_to_camera_init",
+            "package":     "tf2_ros",
+            "executable":  "static_transform_publisher",
+            "arguments":   ["0", "0", "0", "0", "0", "0", "1", "map", "camera_init"],
+        },
+        # base_link ➜ body  (legacy alias; zero rot & trans)
+        {
+            "name":        "static_tf_base_to_body",
+            "package":     "tf2_ros",
+            "executable":  "static_transform_publisher",
+            # NB: only 6 args ⇒ implicit unit-quat (0 0 0 1)
+            "arguments":   ["0", "0", "0", "0", "0", "0", "base_link", "body"],
+        },
+        # base_link ➜ gps  (identity quat)
+        {
+            "name":        "static_tf_base_to_gps",
+            "package":     "tf2_ros",
+            "executable":  "static_transform_publisher",
+            "arguments":   ["0", "0", "0", "0", "0", "0", "1", "base_link", "gps"],
         },
 
         # ---------- ROBOT_LOCALIZATION STACK ----------
         {
-            "name": "ekf_filter_node_odom",
-            "package": "robot_localization",
-            "executable": "ekf_node",
-            "output": "screen",
-            "parameters": "param_file",
-            "remappings": [("odometry/filtered", "odometry/local")],
-            "arguments": None,
+            "name":        "ekf_filter_node_odom",
+            "package":     "robot_localization",
+            "executable":  "ekf_node",
+            "parameters":  "param_file",
+            "remappings":  [("odometry/filtered", "odometry/local")],
         },
         {
-            "name": "ekf_filter_node_map",
-            "package": "robot_localization",
-            "executable": "ekf_node",
-            "output": "screen",
-            "parameters": "param_file",
-            "remappings": [("odometry/filtered", "odometry/global")],
-            "arguments": None,
+            "name":        "ekf_filter_node_map",
+            "package":     "robot_localization",
+            "executable":  "ekf_node",
+            "parameters":  "param_file",
+            "remappings":  [("odometry/filtered", "odometry/global")],
         },
         {
-            "name": "navsat_transform",
-            "package": "robot_localization",
-            "executable": "navsat_transform_node",
-            "output": "screen",
-            "parameters": "param_file",
+            "name":        "navsat_transform",
+            "package":     "robot_localization",
+            "executable":  "navsat_transform_node",
+            "parameters":  "param_file",
             "remappings": [
-                ("imu/data", "imu/data"),
-                ("gps/fix", "gps/fix"),
-                ("gps/filtered", "gps/filtered"),
-                ("odometry/gps", "odometry/gps"),
+                ("imu/data",          "imu/data"),
+                ("gps/fix",           "gps/fix"),
+                ("gps/filtered",      "gps/filtered"),
+                ("odometry/gps",      "odometry/gps"),
                 ("odometry/filtered", "odometry/global"),
             ],
-            "arguments": None,
         },
 
-        # ---------- OPTIONAL UTILITY NODES ----------
+        # ---------- OPTIONAL NODES (commented out) ----------
         # {
-        #     "name": "new_converter_node",
-        #     "package": "message_converter",
-        #     "executable": "new_converter_node",
-        #     "output": "screen",
-        #     "parameters": "param_file",
-        #     "remappings": [("imu/data", "imu/data")],
-        #     "arguments": None,
+        #     "name":        "new_converter_node",
+        #     "package":     "message_converter",
+        #     "executable":  "new_converter_node",
+        #     "parameters":  "param_file",
+        #     "remappings":  [("imu/data", "imu/data")],
         # },
     ],
 
-    # Bag-file playback definitions 🎞️
+    # 🎞️  Bag-file playback configs
     "bag_files": [
         {
-            "file_path": "/media/kearfott/PBKFD-104/stevenzrun7/zip681b67c93ed86/jknuckle@stevens.edu-ae7uY9sQ_317MIjdubN/good_slam5/good_slam5_0.db3",
+            "file_path":   "/media/kearfott/PBKFD-104/stevenzrun7/zip681b67c93ed86/"
+                            "jknuckle@stevens.edu-ae7uY9sQ_317MIjdubN/"
+                            "good_slam5/good_slam5_0.db3",
             "start_offset": 0.0,
-            "delay": 1.0,
-            "blacklist": [ 
-                "/tf",
-            ],
+            "delay":        1.0,          # bash sleep delay (sec)
+            # Topics we *don’t* want → remap to throwaway names
+            "blacklist": ["/tf"],
+            # Remaps we *do* want
             "remaps": {
-                "imu/data" : "imu/raw",
-                "slam/odometry" : "slam/odometry/raw",
-            }
+                "imu/data":      "imu/raw",
+                "slam/odometry": "slam/odometry/raw",
+            },
         },
     ],
 }
 
-# ---
-#                                LAUNCH BUILDER
-# ---
+# Helper ---------------------------------------------------------------------
+
+
+def _resolve_param_file() -> str:
+    """Locate robot_localization params directory & return absolute YAML path."""
+    rl_dir = get_package_share_directory("robot_localization")
+    param_dir = os.path.join(rl_dir, "params")
+    LAUNCH_CONFIG["environment"]["FILE_PATH"] = param_dir
+    os.environ["FILE_PATH"] = param_dir   # export for any node that cares
+
+    abs_yaml = os.path.join(param_dir, LAUNCH_CONFIG["parameter_file_path"])
+    if not os.path.isfile(abs_yaml):
+        raise FileNotFoundError(f"Param YAML not found: {abs_yaml}")
+
+    console.print(f"[bold green]Param YAML:[/bold green] {abs_yaml}")
+    return abs_yaml
+
+
+def _make_node(cfg: Dict[str, Any], param_yaml: str) -> Node:
+    """Convert a node-dict into a launch_ros Node action."""
+    params = [param_yaml] if cfg.get("parameters") == "param_file" else cfg.get("parameters", [])
+    return Node(
+        package=cfg["package"],
+        executable=cfg["executable"],
+        name=cfg["name"],
+        output="screen",
+        parameters=params,
+        remappings=cfg.get("remappings", []),
+        arguments=cfg.get("arguments", []),
+    )
+
+
+def _make_bag_process(bag: Dict[str, Any]) -> ExecuteProcess:
+    """Turn bag-file dict into an ExecuteProcess (with remap blacklisting)."""
+    cmd: List[str] = ["ros2", "bag", "play", bag["file_path"]]
+
+    if bag.get("start_offset") is not None:
+        cmd += ["--start-offset", str(bag["start_offset"])]
+
+    # Positive remaps
+    if bag.get("remaps"):
+        cmd.append("--remap")
+        for old, new in bag["remaps"].items():
+            cmd.append(f"{old}:={new}")
+
+    # Blacklist ⇒ remap to <topic>/blacklist  (works on every ROS 2 distro)
+    for topic in bag.get("blacklist", []):
+        cmd += ["--remap", f"{topic}:={topic}/blacklist"]
+
+    # Optional bash wrapper to delay playback
+    delay = bag.get("delay", 0.0)
+    if delay and delay > 0:
+        cmd = ["bash", "-c", f"sleep {delay} && {' '.join(cmd)}"]
+
+    return ExecuteProcess(cmd=cmd, output="screen", emulate_tty=True)
+
+
+# Launch builder -------------------------------------------------------------
+
 
 def generate_launch_description() -> LaunchDescription:
-    """
-    Convert the LAUNCH_CONFIG dictionary into a LaunchDescription.
-    """
-
-    # --- Resolve parameter file path & env var ---
+    """Build and return the Gym-Bro LaunchDescription 💪."""
     try:
-        rl_dir = get_package_share_directory("robot_localization")
-        LAUNCH_CONFIG["environment"]["FILE_PATH"] = os.path.join(rl_dir, "params")
-        os.environ["FILE_PATH"] = LAUNCH_CONFIG["environment"]["FILE_PATH"]
-
-        LAUNCH_CONFIG["parameter_file_path"] = os.path.join(
-            rl_dir, "params", LAUNCH_CONFIG["parameter_file_path"]
-        )
-        console.print(
-            f"[green]Parameter file:[/green] {LAUNCH_CONFIG['parameter_file_path']}"
-        )
-    except Exception as e:
-        console.print(
-            f"[bold red]Could not locate robot_localization package![/bold red] 😵\n{e}"
-        )
+        param_yaml = _resolve_param_file()
+    except Exception as exc:
+        console.print(f"[bold red]Failed to resolve param file![/bold red] 🤕\n{exc}")
         raise
 
-    # --- Launch arguments ---
-    launch_args = [
-        DeclareLaunchArgument(name, default_value=val)
-        for name, val in LAUNCH_CONFIG["launch_arguments"]
+    # Declare CLI args
+    cli_args = [
+        DeclareLaunchArgument(name, default_value=val) for name, val in LAUNCH_CONFIG["launch_arguments"]
     ]
 
-    # --- Nodes ---
-    node_actions = []
-    for info in LAUNCH_CONFIG["nodes"]:
-        # Swap in the param YAML path if requested
-        params = (
-            [LAUNCH_CONFIG["parameter_file_path"]]
-            if info["parameters"] == "param_file"
-            else (info["parameters"] or [])
-        )
+    # Nodes
+    node_actions = [_make_node(n, param_yaml) for n in LAUNCH_CONFIG["nodes"]]
 
-        node_actions.append(
-            Node(
-                package=info["package"],
-                executable=info["executable"],
-                name=info["name"],
-                output=info["output"],
-                parameters=params,
-                remappings=info.get("remappings", []),
-                arguments=info.get("arguments", []),
-            )
-        )
+    # Bag processes
+    bag_actions = [_make_bag_process(bag) for bag in LAUNCH_CONFIG["bag_files"]]
 
-    # --- Bag-play processes ---
-    process_actions = []
-    for bag in LAUNCH_CONFIG["bag_files"]:
-        cmd = ["ros2", "bag", "play", bag["file_path"]]
-
-        if "start_offset" in bag:
-            cmd += ["--start-offset", str(bag["start_offset"])]
-
-        if bag.get("remaps"):
-            cmd.append("--remap")
-            # Define remaps
-            for old, new in bag["remaps"].items():
-                cmd.append(f"{old}:={new}")
-
-        # Blacklist topics  
-        if bag.get("blacklist"):
-            for topic in bag["blacklist"]:
-                cmd.append(f"{topic}:={topic+'/blacklist'}")
-
-        delay = bag.get("delay", 0.0)
-        if delay and delay > 0:
-            exec_cmd = f"sleep {delay} && {' '.join(cmd)}"
-            cmd = ["bash", "-c", exec_cmd]
+    # Assemble & return
+    return LaunchDescription(cli_args + node_actions + bag_actions)
 
 
-        process_actions.append(
-            ExecuteProcess(cmd=cmd, output="screen", emulate_tty=True)
-        )
-
-    # --- Assemble everything ---
-    return LaunchDescription(launch_args + node_actions + process_actions)
-
-# ---
-#                                END OF FILE
-# ---
+# -------------------------------------------------------------
+#                          END OF FILE
+#                     Time to go to the gym! 🚀
+# -------------------------------------------------------------

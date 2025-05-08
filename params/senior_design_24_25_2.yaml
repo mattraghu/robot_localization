@@ -1,56 +1,70 @@
+# =============================================================
+#  🏋️‍♂️  EKF / NAV STACK — MAX-PUMP EDITION  🏋️‍♂️
+#  Built to crush drift and boost precision. Iron sharpens iron! 🔥
+# =============================================================
+
+# -------------------------------
+#         EKF  ➜  ODOM GRIND
+# -------------------------------
 ekf_filter_node_odom:
   ros__parameters:
-    frequency: 30.0
-    two_d_mode: false
+    # ⚡ How fast we bench-press sensor data
+    frequency: 30.0            # Hz – 30-rep burnouts
+    two_d_mode: false          # Full 3-D gains, no skipped leg day
     print_diagnostics: true
     debug: false
 
-    map_frame: map
-    odom_frame: odom
-    base_link_frame: base_link
-    world_frame: odom
+    # 📐 Frame gains
+    map_frame:        map
+    odom_frame:       odom
+    base_link_frame:  base_link
+    world_frame:      odom      # Local pump zone
 
-
+    # 🚀 LIDAR ODOM (odom0) — main meat-and-potatoes
     odom0: /odometry/lidar
-    odom0_config: [false, false, false, # x, y, z
-                  true, true, true, # roll, pitch, yaw
-                  true,  true,  true, # vx, vy, vz
-                  false, false, false, # vroll, vpitch, vyaw  
-                  false, false, false] # ax, ay, az
-    odom0_queue_size: 10
-    odom0_nodelay: true
+    odom0_config: [false,false,false,   # ✖ pos
+                   true, true, true,    # ✔ roll pitch yaw
+                   true, true, true,    # ✔ linear vel
+                   false,false,false,   # ✖ angular vel
+                   false,false,false]   # ✖ linear accel
+    odom0_queue_size:   10
+    odom0_nodelay:      true   # No lag, no excuses
     odom0_differential: false
-    odom0_relative: true
+    odom0_relative:     true   # Delta reps only
 
+    # 🎥 SLAM ODOM (odom1) — backup spotter
     odom1: slam/odometry
-    odom1_config: [false, false, false, # x, y, z
-                  true, true, true, # roll, pitch, yaw
-                  true,  true,  true, # vx, vy, vz
-                  false, false, false, # vroll, vpitch, vyaw  
-                  false, false, false] # ax, ay, az
-    odom1_queue_size: 10
-    odom1_nodelay: true
-    odom1_differential: false 
-    odom1_relative: true
+    odom1_config: [false,false,false,
+                   true,  true,  true,
+                   true,  true,  true,
+                   false,false,false,
+                   false,false,false]
+    odom1_queue_size:   10
+    odom1_nodelay:      true
+    odom1_differential: false
+    odom1_relative:     true
 
+    # 🧭 IMU (imu0) — attitude check
     imu0: imu/data
-    imu0_config: [false, false, false,
-                 false,  false,  false,
-                 false, false, false,
-                 false,  false,  false,
-                 false,  false,  false]
-    imu0_nodelay: false
-    imu0_differential: false
-    imu0_relative: false
-    imu0_queue_size: 10
+    imu0_config: [false,false,false,
+                  false,false,false,
+                  false,false,false,
+                  false,false,false,
+                  false,false,false]     # muted for now
+    imu0_queue_size:                       10
+    imu0_nodelay:                          false
+    imu0_differential:                     false
+    imu0_relative:                         false
     imu0_remove_gravitational_acceleration: true
 
-    use_control: false
-
-    publish_tf: true
+    publish_tf:         true
     smooth_lagged_data: true
-    history_length: 10.0
+    history_length:     10.0
 
+
+# -------------------------------
+#         EKF  ➜  MAP GAINZ
+# -------------------------------
 ekf_filter_node_map:
   ros__parameters:
     frequency: 30.0
@@ -63,78 +77,67 @@ ekf_filter_node_map:
     publish_acceleration: true
     publish_tf: true
 
-    map_frame: map
-    odom_frame: odom
-    base_link_frame: base_link
-    world_frame: map
+    map_frame:        map
+    odom_frame:       odom
+    base_link_frame:  base_link
+    world_frame:      map     
 
-
-
+    # 🌎 GPS ODOM (odom0) — geo anchor
     odom0: odometry/gps
-    odom0_config: [true, true, false,
-                  false, false, false, # roll, pitch, yaw
-                  false, false, false, # vx, vy, vz
-                  false, false, false, # vroll, vpitch, vyaw
-                  false, false, false] # ax, ay, az
-    odom0_queue_size: 10
-    odom0_nodelay: true
+    odom0_config: [true, true, false,   # x y
+                   false,false,false,
+                   false,false,false,
+                   false,false,false,
+                   false,false,false]
+    odom0_queue_size:   10
+    odom0_nodelay:      true
     odom0_differential: false
-    odom0_relative: false
+    odom0_relative:     false
 
+    # 🦾 LIDAR ODOM (odom1)
     odom1: odometry/lidar
-    odom1_config: [false, false, false, # x, y, z
-                  true, true, true, # roll, pitch, yaw
-                  true,  true,  true, # vx, vy, vz
-                  false, false, false, # vroll, vpitch, vyaw  
-                  false, false, false] # ax, ay, az
-    odom1_queue_size: 10
-    odom1_nodelay: true
-    odom1_differential: false 
-    odom1_relative: true
+    odom1_config: [false,false,false,
+                   true, true, true,
+                   true, true, true,
+                   false,false,false,
+                   false,false,false]
+    odom1_queue_size:   10
+    odom1_nodelay:      true
+    odom1_differential: false
+    odom1_relative:     true
 
+    # 🎥 SLAM ODOM (odom2)
     odom2: slam/odometry
-    odom2_config: [false, false, false, # x, y, z
-                  true, true, true, # roll, pitch, yaw
-                  true,  true,  true, # vx, vy, vz
-                  false, false, false, # vroll, vpitch, vyaw  
-                  false, false, false] # ax, ay, az
-    odom2_queue_size: 10
-    odom2_nodelay: true
-    odom2_differential: false 
-    odom2_relative: true
+    odom2_config: [false,false,false,
+                   true, true, true, # roll pitch yaw
+                   true, true, true, # linear vel
+                   false,false,false,
+                   false,false,false]
+    odom2_queue_size:   10
+    odom2_nodelay:      true
+    odom2_differential: false
+    odom2_relative:     true
 
-    # imu0: imu/data
-    # imu0_config: [false, false, false,
-    #               true,  true,  true,
-    #               false, false, false,
-    #               false,  false,  false,
-    #               false,  false,  false]
-    # imu0_nodelay: false
-    # imu0_differential: false
-    # imu0_relative: false
-    # imu0_queue_size: 10
-    # imu0_remove_gravitational_acceleration: true
-
-    use_control: false
     smooth_lagged_data: true
-    history_length: 10.0
+    history_length:     10.0
 
+
+# -------------------------------
+#        NAVSAT TRANSFORM
+# -------------------------------
 navsat_transform:
   ros__parameters:
     frequency: 30.0
-    delay: 3.0
-    magnetic_declination_radians: 0.0 #-0.2184
-    yaw_offset: 2.14
+    delay: 3.0                       # Warm-up sync
+    magnetic_declination_radians: 0.0
+    yaw_offset: 2.14                 # Tiny stance tweak
     zero_altitude: false
     publish_filtered_gps: true
     use_odometry_yaw: false
     wait_for_datum: true
-    datum: [
-      40.7446795, -74.02789183333333, -14.899999999999999
-    ]
+
+    # Home turf (Lat, Lon, Alt[m])
+    datum: [40.7446795, -74.02789183333333, -14.9]
 
     smooth_lagged_data: true
-    history_length: 10.0
-
-
-
+    history_length:     10.0
