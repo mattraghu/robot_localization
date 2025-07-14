@@ -92,15 +92,6 @@ def generate_launch_description():
                 ],
                 "arguments": None
             },
-            {
-                "name": "new_converter_node",
-                "package": "message_converter",
-                "executable": "new_converter_node",
-                "output": "screen",
-                "parameters": "param_file",
-                "remappings": [("imu/data", "imu/data")],
-                "arguments": None
-            },
             { 
                 "name": "skyline_publisher",
                 "package": "skyline_publisher",
@@ -127,14 +118,32 @@ def generate_launch_description():
                 "remappings": [("gps/last_known_fix", "gps/last_known_fix")],
                 "parameters": "param_file",
                 "arguments": None
-            }
+            },
+            {
+                "name": "message_converter_node",
+                "package": "message_converter",
+                "executable": "republisher",
+                "output": "screen",
+                "parameters": "param_file",
+                "remappings": [
+                    ("imu/data", "imu/data"),
+                ],
+                "arguments": None
+            },
+            # {
+
+            #     "name": "new_converter_node",
+            #     "package": "message_converter",
+            #     "executable": "new_converter_node",
+            #     "output": "screen",
+            #     "parameters": "param_file",
+            #     "remappings": [("imu/data", "imu/data")],
+            #     "arguments": None
+            # },
+
         ],
         "bag_files": [
             {
-                # "file_path": "2_10_2025_skyline_1/2_10_2025_skyline_1_0.db3", #/home/kearfott/ros2_ws/12_20_2024_skyline_2/12_20_2024_skyline_2_0.db3",
-                # "start_offset": 5265.35601, #2995.7, 
-
-                # "file_path": "/home/kearfott/ros2_ws/03_03_2025_skyline_6/03_03_2025_skyline_6_0.db3",
                 "file_path": "/media/kearfott/PBKFD-104/03_03_2025_skyline_6/03_03_2025_skyline_6_0_remapped.db3/03_03_2025_skyline_6_0_remapped.db3_0.db3",
                 "start_offset": 1707.7, # 100.0 i did 1703 BEFORE
                 "remaps": {
